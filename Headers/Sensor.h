@@ -19,7 +19,6 @@ private:
 
     int sensorId;
     string sensorType;
-    float valeur;
     Server* server;
 
     static int idSuivant;  // Génère des id différents
@@ -28,16 +27,19 @@ public:
 
     Sensor(const string& type, Server* server);
 
-    ~Sensor();
+    virtual ~Sensor();
 
     void update();
 
-    void execute();
+    virtual void execute() = 0; // methode pure virtuelle chaque classe dérivée doit l'implémenter
+
+protected:
+
+    void envoyerValeur(const string& valeur) const;
 
     // Getters
     int getId() const;
     string getType() const;
-    float getValeur() const;
 };
 
 #endif // indique la fin de la zone protégée

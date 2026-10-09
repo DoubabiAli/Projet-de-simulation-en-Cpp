@@ -18,6 +18,11 @@ set(SOURCES
     Sources/Server.cpp
     Sources/Sensor.cpp
     Sources/Scheduler.cpp
+    Sources/TemperatureSensor.cpp
+    Sources/HumiditySensor.cpp
+    Sources/SoundSensor.cpp
+    Sources/LightSensor.cpp
 )
 
-add_executable(simulator ${SOURCES})
+add_executable(simulator ${SOURCES}
+    Headers/LightSensor.h)
