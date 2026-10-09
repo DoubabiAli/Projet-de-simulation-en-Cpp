@@ -14,7 +14,8 @@ using namespace std;
 
 int main()
 {
-   
+    srand(static_cast<unsigned int>(time(nullptr)));
+
     Server server("Server1");   // Création d'un Server
     
     // Création des Sensors
