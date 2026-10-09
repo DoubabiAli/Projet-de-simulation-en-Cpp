@@ -1,15 +1,17 @@
 #include "../Headers/HumiditySensor.h"
-#include <cstdlib>
-#include <string>
+
 
 HumiditySensor::HumiditySensor(Server* server)
-    : Sensor("Humidity", server), valeur(0.0f) {}
-
-void HumiditySensor::execute(){
-    valeur = static_cast<float>(rand() % 10001) / 100.0f;
-    envoyerValeur(std::to_string(valeur));
+    : Sensor("Humidity", server)
+{
 }
 
-float HumiditySensor::getValeur() const{
-    return valeur;
+void HumiditySensor::execute(){
+    float valeur = static_cast<float>(rand() % 10001) / 100.0f;
+    
+
+    if (server != nullptr){
+        server->consoleWrite(getType(), getId(), to_string(valeur));
+        server->fileWrite(getType(), getId(), to_string(valeur));
+    }
 }

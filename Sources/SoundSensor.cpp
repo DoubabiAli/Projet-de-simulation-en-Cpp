@@ -1,15 +1,15 @@
 #include "../Headers/SoundSensor.h"
-#include <cstdlib>
-#include <string>
 
 SoundSensor::SoundSensor(Server* server)
-    : Sensor("Sound", server), valeur(0) {}
-
-void SoundSensor::execute(){
-    valeur = rand() % 101;
-    envoyerValeur(std::to_string(valeur));
+    : Sensor("Sound", server)
+{
 }
 
-int SoundSensor::getValeur() const{
-    return valeur;
+void SoundSensor::execute(){
+    int valeur = rand() % 101; // genere une valeur aléatoire entre 0 et 100
+
+    if (server != nullptr){
+        server->consoleWrite(getType(), getId(), to_string(valeur));
+        server->fileWrite(getType(), getId(), to_string(valeur));
+    }
 }

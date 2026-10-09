@@ -3,13 +3,28 @@
 #include <string>
 
 LightSensor::LightSensor(Server* server)
-    : Sensor("Light", server), valeur(false) {}
-
-void LightSensor::execute(){
-    valeur = rand() % 2 == 1;
-    envoyerValeur(valeur ? "true" : "false");
+    : Sensor("Light", server)
+{
 }
 
-bool LightSensor::getValeur() const{
-    return valeur;
+void LightSensor::execute(){
+
+    bool light = rand() % 2;
+
+    string valeur;
+
+    if (light)
+    {
+        valeur = "true";
+    }
+    else
+    {
+        valeur = "false";
+    }
+
+    if (server != nullptr)
+    {
+        server->consoleWrite(getType(), getId(), valeur);
+        server->fileWrite(getType(), getId(), valeur);
+    }
 }

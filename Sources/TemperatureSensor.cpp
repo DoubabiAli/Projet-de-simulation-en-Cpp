@@ -1,15 +1,12 @@
 #include "../Headers/TemperatureSensor.h"
-#include <cstdlib>
-#include <string>
 
-TemperatureSensor::TemperatureSensor(Server* server)
-    : Sensor("Temperature", server), valeur(0.0f) {}
+TemperatureSensor::TemperatureSensor(Server* server): Sensor("Temperature", server){}
 
 void TemperatureSensor::execute(){
-    valeur = static_cast<float>(rand() % 10001) / 100.0f;
-    envoyerValeur(std::to_string(valeur));
-}
+    float valeur = static_cast<float>(rand() % 10001) / 100.0f;
 
-float TemperatureSensor::getValeur() const{
-    return valeur;
+    if (server != nullptr){
+        server->consoleWrite(getType(), getId(), to_string(valeur));
+        server->fileWrite(getType(), getId(), to_string(valeur));
+    }
 }

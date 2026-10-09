@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 #include "../Headers/Server.h"
 #include "../Headers/Sensor.h"
@@ -12,6 +14,7 @@ using namespace std;
 
 int main()
 {
+   
     Server server("Server1");   // Création d'un Server
     
     // Création des Sensors
@@ -29,6 +32,9 @@ int main()
     scheduler.addSensor(&sensor4);
 
     scheduler.simulation();
+
+    cout << "\nAppuyez sur Entree pour fermer la console..." << endl;
+    cin.get();
 
     return 0;
 }

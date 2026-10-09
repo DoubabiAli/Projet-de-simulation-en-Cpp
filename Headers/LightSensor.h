@@ -4,14 +4,11 @@
 #include "Sensor.h"
 
 class LightSensor : public Sensor {
-private:
-    bool valeur;
-
 public:
     LightSensor(Server* server);
 
     void execute() override;
-    bool getValeur() const;
 };
 
 #endif
+    

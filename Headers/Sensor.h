@@ -19,6 +19,10 @@ private:
 
     int sensorId;
     string sensorType;
+    float valeur;
+
+protected:
+
     Server* server;
 
     static int idSuivant;  // Génère des id différents
@@ -35,11 +39,10 @@ public:
 
 protected:
 
-    void envoyerValeur(const string& valeur) const;
-
     // Getters
     int getId() const;
     string getType() const;
+    float getValeur() const;
 };
 
 #endif // indique la fin de la zone protégée
