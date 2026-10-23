@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 #include <cstdlib>  // Pour rand()
 
@@ -10,11 +9,11 @@ using namespace std;
 
 int Sensor::idSuivant = 0; // genere un id unique pour chaque Sensor
 
-Sensor::Sensor(const string& type, Server* server){
+Sensor::Sensor(const string& type, Server* server, int periode)
+    : periode(periode), compteur(0){
     sensorId = ++idSuivant;
 
     sensorType = type;
-    valeur = 0.0f;
     this->server = server;
 }
 
@@ -34,9 +33,4 @@ int Sensor::getId() const
 string Sensor::getType() const
 {
     return sensorType;
-}
-
-float Sensor::getValeur() const
-{
-    return valeur;
 }

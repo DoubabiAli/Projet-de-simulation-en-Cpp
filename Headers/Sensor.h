@@ -7,8 +7,8 @@
 // Est-ce que SENSOR_H est déjà défini ? Oui.
 // Donc : "Je l'ai déjà lu, pas besoin de le relire."
 
-#include <iostream>
 #include <string>
+#include <iostream>
 #include "Server.h"
 
 using namespace std;
@@ -16,20 +16,21 @@ using namespace std;
 class Sensor{
 
 private:
-
     int sensorId;
     string sensorType;
-    float valeur;
-
 protected:
 
     Server* server;
 
     static int idSuivant;  // Génère des id différents
+    
+//chageent pour la gestion du temps
+    int periode;
+    int compteur;
 
 public:
-
-    Sensor(const string& type, Server* server);
+//changement, ajout de int periode 1
+    Sensor(const string& type, Server* server,int periode = 1);
 
     virtual ~Sensor();
 
@@ -42,7 +43,6 @@ protected:
     // Getters
     int getId() const;
     string getType() const;
-    float getValeur() const;
 };
 
 #endif // indique la fin de la zone protégée

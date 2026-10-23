@@ -3,7 +3,7 @@
 #include <string>
 
 LightSensor::LightSensor(Server* server)
-    : Sensor("Light", server)
+    : Sensor("Light", server,15)
 {
 }
 

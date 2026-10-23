@@ -1,8 +1,8 @@
 #ifndef SERVER_H // Protection contre les inclusions multiples
 #define SERVER_H // Empêcher le contenu d'un fichier .h d'être inclus plusieurs fois dans la même compilation.
 
-#include <iostream>
 #include <string>
+#include <iostream>
 #include <fstream> //Pour l'ecriture sur les fichiers
 
 using namespace std;

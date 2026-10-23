@@ -1,7 +1,7 @@
 #include "../Headers/SoundSensor.h"
 
 SoundSensor::SoundSensor(Server* server)
-    : Sensor("Sound", server)
+    : Sensor("Sound", server,10)
 {
 }
 

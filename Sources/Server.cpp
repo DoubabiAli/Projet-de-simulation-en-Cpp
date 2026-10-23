@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <ctime>
+#include <iomanip>
+#include <filesystem>
 
 #include "../Headers/Server.h"
 
@@ -36,10 +39,19 @@ void Server::consoleWrite(const string& sensorType,int sensorId, const string& v
 
 void Server::fileWrite(const string& sensorType,int sensorId,const string& valeur){
     string nomFile = sensorType + ".csv";
+    // L'en-tete est ecrit uniquement si le fichier est nouveau ou vide.
+    bool fichierVide = !filesystem::exists(nomFile) || filesystem::file_size(nomFile) == 0;
     ofstream fichier(nomFile, ios::app);
 
     if (fichier.is_open()){
-        fichier << sensorId << "," << valeur << endl;
+        if (fichierVide){
+            fichier << "Date;Heure;SensorId;SensorType;Valeur" << endl;
+        }
+
+        time_t maintenant = time(nullptr);
+        tm* dateLocale = localtime(&maintenant);
+
+        fichier << put_time(dateLocale, "%Y-%m-%d") << ";" << put_time(dateLocale, "%H:%M:%S") << ";" << sensorId << ";" << sensorType << ";" << valeur << endl;
         fichier.close();
     }
     else{

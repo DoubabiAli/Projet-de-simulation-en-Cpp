@@ -34,8 +34,5 @@ int main()
 
     scheduler.simulation();
 
-    cout << "\nAppuyez sur Entree pour fermer la console..." << endl;
-    cin.get();
-
     return 0;
 }
