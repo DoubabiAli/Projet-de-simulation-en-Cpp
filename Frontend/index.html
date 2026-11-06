@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard AP4A</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <h1>Dashboard IoT</h1>
+        <p id="lastUpdate">En attente de la première mesure</p>
+    </div>
+
+    <div class="controls">
+        <span class="status" id="status" data-state="live">
+            <span class="dot"></span><span id="statusText">En direct</span>
+        </span>
+
+        <label class="select">
+            <span class="sr-only">Fréquence de rafraîchissement</span>
+            <select id="intervalSelect">
+                <option value="1000">Toutes les 1 s</option>
+                <option value="2000" selected>Toutes les 2 s</option>
+                <option value="5000">Toutes les 5 s</option>
+                <option value="10000">Toutes les 10 s</option>
+            </select>
+        </label>
+
+        <button class="btn" id="pauseBtn" type="button">Pause</button>
+        <button class="btn btn-icon" id="themeBtn" type="button" aria-label="Changer de thème" title="Changer de thème">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<main class="page">
+
+    <!-- Les 4 cartes sont générées par app.js -->
+    <section class="cards" id="cards" aria-label="Capteurs"></section>
+
+    <section class="detail" id="detail" aria-live="polite">
+        <div class="detail-head">
+            <div>
+                <h2 id="detailTitle">Température</h2>
+                <p id="detailZone" class="detail-zone"></p>
+            </div>
+
+            <div class="range" id="range" role="group" aria-label="Période affichée">
+                <button type="button" data-range="120000">2 min</button>
+                <button type="button" data-range="600000" class="active">10 min</button>
+                <button type="button" data-range="Infinity">Tout</button>
+            </div>
+        </div>
+
+        <div class="detail-stats" id="detailStats"></div>
+
+        <div class="chart-wrap">
+            <canvas id="mainChart"></canvas>
+            <p class="empty" id="chartEmpty">Le graphique apparaît dès que deux mesures sont reçues.</p>
+        </div>
+
+        <div class="detail-foot">
+            <button class="btn" id="exportBtn" type="button">Exporter en CSV</button>
+            <button class="btn btn-ghost" id="clearBtn" type="button">Effacer l’historique</button>
+        </div>
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+
+</body>
+
+</html>

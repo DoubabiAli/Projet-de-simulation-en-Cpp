@@ -28,8 +28,6 @@ set(SOURCES
 add_executable(simulator ${SOURCES}
     Headers/LightSensor.h)
 
-target_compile_definitions(simulator PRIVATE PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
-
 if (WIN32)
     target_link_libraries(simulator PRIVATE ws2_32)
 endif()

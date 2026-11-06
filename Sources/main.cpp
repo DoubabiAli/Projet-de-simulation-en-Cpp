@@ -36,8 +36,8 @@ int main()
     scheduler.addSensor(&sensor3);
     scheduler.addSensor(&sensor4);
 
-    const filesystem::path projectDirectory = PROJECT_SOURCE_DIR;
-    const filesystem::path frontendDirectory = projectDirectory.parent_path() / "Frontend";
+    const filesystem::path projectDirectory = filesystem::current_path();
+    const filesystem::path frontendDirectory = projectDirectory / "Frontend";
     filesystem::current_path(projectDirectory);
     HttpServer httpServer(frontendDirectory.string(), projectDirectory.string());
 
