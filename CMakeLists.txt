@@ -22,7 +22,14 @@ set(SOURCES
     Sources/HumiditySensor.cpp
     Sources/SoundSensor.cpp
     Sources/LightSensor.cpp
+    Sources/HttpServer.cpp
 )
 
 add_executable(simulator ${SOURCES}
     Headers/LightSensor.h)
+
+target_compile_definitions(simulator PRIVATE PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+
+if (WIN32)
+    target_link_libraries(simulator PRIVATE ws2_32)
+endif()

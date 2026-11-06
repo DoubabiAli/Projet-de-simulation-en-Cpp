@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <filesystem>
+#include <stdexcept>
+#include <thread>
 
 #include "../Headers/Server.h"
 #include "../Headers/Sensor.h"
@@ -9,6 +12,7 @@
 #include "../Headers/SoundSensor.h"
 #include "../Headers/LightSensor.h"
 #include "../Headers/Scheduler.h"
+#include "../Headers/HttpServer.h"
 
 using namespace std;
 
@@ -32,7 +36,14 @@ int main()
     scheduler.addSensor(&sensor3);
     scheduler.addSensor(&sensor4);
 
-    scheduler.simulation();
+    const filesystem::path projectDirectory = PROJECT_SOURCE_DIR;
+    const filesystem::path frontendDirectory = projectDirectory.parent_path() / "Frontend";
+    filesystem::current_path(projectDirectory);
+    HttpServer httpServer(frontendDirectory.string(), projectDirectory.string());
+
+    thread simulationThread(&Scheduler::simulation, &scheduler);
+    httpServer.run();
+    simulationThread.join();
 
     return 0;
 }
