@@ -20,7 +20,11 @@ Sensor::Sensor(const string& type, Server* server, int periode)
 Sensor::~Sensor(){}
 
 void Sensor::update(){
-    execute();
+    ++compteur;
+    if (compteur >= periode) {
+        execute();
+        compteur = 0;
+    }
 }
 
 // Getters

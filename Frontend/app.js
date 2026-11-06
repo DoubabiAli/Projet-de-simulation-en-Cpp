@@ -47,6 +47,7 @@ const SENSORS = {
 
 const KEYS = Object.keys(SENSORS);
 const MAX_TICKS = 900;                 // taille max de l'historique
+const POLL_MS = 1000;                  // le navigateur interroge /api/sensors chaque seconde (une mesure n'est ajoutée que si sa date a changé)
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- État ---------- */
@@ -58,9 +59,9 @@ const state = {
     range: 600000,
     paused: false,
     online: true,
-    intervalMs: 2000,
     timer: null,
-    shown: {}                           // valeur affichée (pour l'animation des nombres)
+    shown: {},                          // valeur affichée (pour l'animation des nombres)
+    lastDates: {}                       // dernière date de mesure reçue par capteur
 };
 
 /* ---------- Utilitaires ---------- */
@@ -94,6 +95,13 @@ function load(key, fallback) {
 function series(key, range = state.range) {
     const limit = Date.now() - range;
     return state.ticks.filter(k => k[key] !== undefined && k.t >= limit);
+}
+
+function latestValue(key) {
+    for (let i = state.ticks.length - 1; i >= 0; i--) {
+        if (state.ticks[i][key] !== undefined) return state.ticks[i][key];
+    }
+    return undefined;
 }
 
 function stats(key, range) {
@@ -141,7 +149,7 @@ function select(key) {
         c.setAttribute("aria-pressed", String(c.dataset.sensor === key)));
     $("#detail").style.setProperty("--accent", `var(--c-${key})`);
     updateDetail();
-    save("ap4a-prefs", { selected: state.selected, range: String(state.range), intervalMs: state.intervalMs,
+    save("ap4a-prefs", { selected: state.selected, range: String(state.range),
                          theme: document.documentElement.dataset.theme });
 }
 
@@ -214,7 +222,7 @@ function updateCards() {
         const card = $(`.sensor[data-sensor="${key}"]`);
         const entry = state.latest[key] || {};
         const pts = series(key, 300000);                // 5 dernières minutes pour la sparkline
-        const last = state.ticks.length ? state.ticks[state.ticks.length - 1][key] : undefined;
+        const last = latestValue(key);
 
         const valueEl = $('[data-role="value"]', card);
         const zoneEl  = $('[data-role="zone"]', card);
@@ -287,7 +295,7 @@ let chart = null;
 function buildChart() {
     chart = new Chart($("#mainChart"), {
         type: "line",
-        data: { labels: [], datasets: [{ data: [], borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, tension: 0.3, fill: true }] },
+        data: { datasets: [{ data: [], borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, tension: 0.3, fill: true }] },
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -295,7 +303,7 @@ function buildChart() {
             interaction: { mode: "index", intersect: false },
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false }, ticks: { maxTicksLimit: 6, maxRotation: 0 } },
+                x: { type: "linear", grid: { display: false }, ticks: { maxTicksLimit: 6, maxRotation: 0, callback: v => timeLabel(v) } },
                 y: { grace: "10%" }
             }
         }
@@ -309,7 +317,7 @@ function updateDetail() {
     const pts = series(key);
 
     $("#detailTitle").textContent = s.label;
-    const last = state.ticks.length ? state.ticks[state.ticks.length - 1][key] : undefined;
+    const last = latestValue(key);
     $("#detailZone").textContent = last === undefined ? "Aucune mesure" : `État actuel : ${s.zone(last).text.toLowerCase()}`;
 
     /* chiffres clés */
@@ -325,8 +333,7 @@ function updateDetail() {
     /* graphique */
     $(".chart-wrap").classList.toggle("is-empty", pts.length < 2);
     const ds = chart.data.datasets[0];
-    chart.data.labels = pts.map(k => timeLabel(k.t));
-    ds.data = pts.map(k => k[key]);
+    ds.data = pts.map(k => ({ x: k.t, y: k[key] }));
     ds.borderColor = color;
     ds.backgroundColor = color + "26";
     ds.stepped = s.boolean ? true : false;
@@ -343,8 +350,16 @@ function updateDetail() {
         callback: v => s.boolean ? (v === 1 ? "Allumé" : v === 0 ? "Éteint" : "") : `${v} ${s.unit}`
     };
     chart.options.scales.x.ticks.color = muted;
+
+    /* fenêtre de temps : 2 min / 10 min = fenêtre glissante, Tout = depuis la 1re mesure */
+    const now = Date.now();
+    const allPts = state.ticks.filter(k => k[key] !== undefined);
+    chart.options.scales.x.max = now;
+    chart.options.scales.x.min = Number.isFinite(state.range)
+        ? now - state.range
+        : (allPts.length ? allPts[0].t : undefined);
     chart.options.plugins.tooltip = {
-        callbacks: { label: c => s.boolean ? (c.parsed.y ? "Allumé" : "Éteint") : `${fmt(c.parsed.y, s.digits)} ${s.unit}` }
+        callbacks: { title: items => timeLabel(items[0].parsed.x), label: c => s.boolean ? (c.parsed.y ? "Allumé" : "Éteint") : `${fmt(c.parsed.y, s.digits)} ${s.unit}` }
     };
     chart.update("none");
 }
@@ -365,14 +380,25 @@ async function actualiser() {
         const mesures = await response.json();
 
         const tick = { t: Date.now() };
+        let hasNewMeasurement = false;
         KEYS.forEach(key => {
-            const v = parse(key, mesures[key] && mesures[key].value);
-            if (v !== undefined) tick[key] = v;
+            const measurement = mesures[key];
+            const date = measurement && measurement.date;
+            if (!date || date === state.lastDates[key]) return;
+
+            const v = parse(key, measurement.value);
+            if (v !== undefined) {
+                tick[key] = v;
+                state.lastDates[key] = date;
+                hasNewMeasurement = true;
+            }
         });
         state.latest = mesures;
-        state.ticks.push(tick);
-        if (state.ticks.length > MAX_TICKS) state.ticks.shift();
-        save("ap4a-ticks", state.ticks);
+        if (hasNewMeasurement) {
+            state.ticks.push(tick);
+            if (state.ticks.length > MAX_TICKS) state.ticks.shift();
+            save("ap4a-ticks", state.ticks);
+        }
 
         setStatus(true);
         $("#lastUpdate").textContent = `Dernière mise à jour à ${timeLabel(tick.t)}`;
@@ -384,7 +410,7 @@ async function actualiser() {
     }
 }
 
-/* ---------- Statut, pause, fréquence ---------- */
+/* ---------- Statut, pause ---------- */
 
 function setStatus(online) {
     state.online = online;
@@ -400,7 +426,7 @@ function renderStatus() {
 
 function startPolling() {
     clearInterval(state.timer);
-    if (!state.paused) state.timer = setInterval(actualiser, state.intervalMs);
+    if (!state.paused) state.timer = setInterval(actualiser, POLL_MS);
 }
 
 /* ---------- Boutons ---------- */
@@ -412,12 +438,6 @@ function setupControls() {
         renderStatus();
         if (!state.paused) actualiser();
         startPolling();
-    });
-
-    $("#intervalSelect").addEventListener("change", e => {
-        state.intervalMs = Number(e.target.value);
-        startPolling();
-        select(state.selected);                      // sauvegarde les préférences
     });
 
     $("#range").addEventListener("click", e => {
@@ -468,12 +488,10 @@ function init() {
     document.documentElement.dataset.theme = prefs.theme || preferredTheme;
     if (prefs.selected && SENSORS[prefs.selected]) state.selected = prefs.selected;
     if (prefs.range) state.range = Number(prefs.range);
-    if (prefs.intervalMs) state.intervalMs = prefs.intervalMs;
 
     // on ne garde que l'historique récent (moins de 15 min) pour éviter un graphique avec un grand trou
     state.ticks = load("ap4a-ticks", []).filter(k => Date.now() - k.t < 15 * 60000);
 
-    $("#intervalSelect").value = String(state.intervalMs);
     document.querySelectorAll("#range button").forEach(b =>
         b.classList.toggle("active", Number(b.dataset.range) === state.range));
 
