@@ -17,6 +17,7 @@ fichiers CSV.
 - Attribution automatique d'un identifiant unique à chaque capteur.
 - Exécution périodique de la simulation grâce à un ordonnanceur
   (`Scheduler`).
+- Visualisation des mesures dans une interface graphique web.
 
 ## Architecture
 
@@ -40,6 +41,14 @@ Projet/
 │   ├── SoundSensor.cpp
 │   ├── TemperatureSensor.cpp
 │   └── main.cpp
+├── Frontend/
+│   ├── app.js
+│   ├── index.html
+│   └── style.css
+├── docs/
+│   └── images/
+│       ├── dashboard-dark.png
+│       └── dashboard-light.png
 ├── Humidity.csv
 ├── Light.csv
 ├── Sound.csv
@@ -55,6 +64,50 @@ Projet/
 - `Scheduler` : conserve la liste des capteurs et déclenche leurs mises à
   jour.
 - `main.cpp` : initialise le serveur, les capteurs et l'ordonnanceur.
+
+## Interface graphique
+
+Le projet inclut un tableau de bord web accessible à l'adresse
+`http://localhost:8080/` lorsque le programme est lancé. Il récupère les
+dernières mesures depuis l'API `/api/sensors` et les présente dans quatre
+cartes dédiées :
+
+- **Température** : valeur en degrés Celsius, état et tendance ;
+- **Humidité** : pourcentage, état et statistiques ;
+- **Lumière** : état allumé ou éteint et durée relative ;
+- **Son** : niveau sonore en décibels et tendance.
+
+Chaque carte affiche la dernière mesure reçue, sa date, un aperçu graphique,
+ainsi que les valeurs minimale, maximale et moyenne disponibles. Cliquer sur
+une carte ouvre le détail du capteur avec un graphique plus grand. La période
+affichée peut être réglée sur **2 minutes**, **10 minutes** ou **Toutes les
+mesures**.
+
+Le tableau de bord propose également :
+
+- un bouton **Pause/Reprendre** pour suspendre ou relancer l'actualisation ;
+- un bouton de changement de thème clair ou sombre ;
+- l'export de l'historique du capteur sélectionné au format CSV ;
+- l'effacement de l'historique conservé dans le navigateur.
+
+L'interface interroge régulièrement le serveur, mais une valeur n'est ajoutée
+à l'historique que lorsqu'une nouvelle mesure du capteur est disponible. Les
+capteurs conservent ainsi leurs propres périodes de mesure :
+
+- température : toutes les `5` secondes ;
+- son : toutes les `10` secondes ;
+- lumière : toutes les `15` secondes ;
+- humidité : toutes les `20` secondes.
+
+### Captures de l'interface
+
+#### Thème sombre
+
+![Dashboard IoT en thème sombre](docs/images/dashboard-dark.png)
+
+#### Thème clair
+
+![Dashboard IoT en thème clair](docs/images/dashboard-light.png)
 
 ## Prérequis
 
@@ -135,8 +188,9 @@ Au démarrage, le programme :
 1. crée un serveur nommé `Server1` ;
 2. crée un capteur de chaque type ;
 3. ajoute les capteurs à l'ordonnanceur ;
-4. met à jour chaque capteur toutes les secondes ;
-5. transmet chaque valeur au serveur pour affichage et sauvegarde.
+4. vérifie les capteurs toutes les secondes ;
+5. déclenche chaque capteur selon sa propre période, puis transmet les
+   nouvelles valeurs au serveur pour affichage et sauvegarde.
 
 Les valeurs générées sont aléatoires :
 
