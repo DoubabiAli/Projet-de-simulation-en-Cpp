@@ -1,2 +1,15 @@
+# Compilation
 build/
-*.csv
+cmake-build-*/
+
+# Éditeurs
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# CSV générés par le simulateur dans le dossier du projet
+/*.csv
