@@ -16,8 +16,25 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
+    // Lecture des arguments : seul --inject-anomalies est reconnu
+    for (int i = 1; i < argc; i++)
+    {
+        string argument = argv[i];
+        if (argument == "--inject-anomalies")
+        {
+            Sensor::injectAnomalies = true;
+            cout << "Mode test : injection d'anomalies activee" << endl;
+        }
+        else
+        {
+            cerr << "Argument inconnu : " << argument << endl;
+            cerr << "Usage : " << argv[0] << " [--inject-anomalies]" << endl;
+            return 1;
+        }
+    }
+
     srand(static_cast<unsigned int>(time(nullptr)));
 
     Server server("Server1");   // Création d'un Server

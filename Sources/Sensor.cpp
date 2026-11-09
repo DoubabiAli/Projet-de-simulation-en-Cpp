@@ -9,6 +9,8 @@ using namespace std;
 
 int Sensor::idSuivant = 0; // genere un id unique pour chaque Sensor
 
+bool Sensor::injectAnomalies = false; // mode test désactivé par défaut
+
 Sensor::Sensor(const string& type, Server* server, int periode)
     : periode(periode), compteur(0){
     sensorId = ++idSuivant;
@@ -37,4 +39,11 @@ int Sensor::getId() const
 string Sensor::getType() const
 {
     return sensorType;
+}
+
+bool Sensor::doitInjecterAnomalie() const
+{
+    // Si le mode test est désactivé, rand() n'est pas appelé :
+    // le fonctionnement normal du simulateur reste exactement le même.
+    return injectAnomalies && rand() % 50 == 0;
 }
