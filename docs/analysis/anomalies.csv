@@ -1,0 +1,11 @@
+Date;Heure;SensorId;SensorType;Valeur;ts;raison
+2026-11-10;00:00:37;1;Temperature;120.0;2026-11-10 00:00:37;hors plage
+2026-11-10;00:03:23;1;Temperature;142.0;2026-11-10 00:03:23;hors plage
+2026-11-10;00:03:54;1;Temperature;142.0;2026-11-10 00:03:54;hors plage
+2026-11-10;00:05:25;1;Temperature;109.0;2026-11-10 00:05:25;hors plage
+2026-11-10;00:08:22;1;Temperature;124.0;2026-11-10 00:08:22;hors plage
+2026-11-10;00:10:13;1;Temperature;141.0;2026-11-10 00:10:13;hors plage
+2026-11-10;00:11:49;1;Temperature;114.0;2026-11-10 00:11:49;hors plage
+2026-11-10;00:12:15;1;Temperature;111.0;2026-11-10 00:12:15;hors plage
+2026-11-10;00:06:30;2;Humidity;111.0;2026-11-10 00:06:30;hors plage
+2026-11-10;00:12:25;3;Sound;124.0;2026-11-10 00:12:25;hors plage
