@@ -1,0 +1,9 @@
+.git
+.github
+.vscode
+build/
+*.csv
+data/
+docs/
+analysis/
+README.md

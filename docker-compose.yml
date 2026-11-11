@@ -1,0 +1,8 @@
+services:
+  simulator:
+    build: .
+    init: true
+    ports:
+      - "8080:8080"
+    # Pour générer des anomalies de test, décommente la ligne suivante :
+    # command: ["./simulator", "--inject-anomalies"]
