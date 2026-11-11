@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-cpp:
+    name: Compilation C++ (CMake)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurer et compiler
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+
+  analysis:
+    name: Analyse Python / Pandas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installer les dépendances
+        run: pip install -r analysis/requirements.txt
+      - name: Lancer l'analyse sur les données d'exemple
+        run: python analysis/analyze.py data/sample
+      - name: Conserver le rapport
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-analyse
+          path: docs/analysis/
+
+  docker:
+    name: Image Docker et test de fumée
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construire l'image
+        run: docker build -t iot-simulator .
+      - name: Démarrer le conteneur
+        run: docker run -d --name simulator -p 8080:8080 iot-simulator
+      - name: Vérifier le dashboard et l'API
+        run: |
+          sleep 10
+          curl -fsS http://localhost:8080/ -o /dev/null
+          curl -fsS http://localhost:8080/api/sensors | tee /tmp/api.json
+          grep -q '"temperature":{"value":"' /tmp/api.json
+      - name: Afficher les logs en cas d'échec
+        if: failure()
+        run: docker logs simulator
